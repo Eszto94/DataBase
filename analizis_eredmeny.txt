@@ -1,0 +1,45 @@
+Merge Join  (cost=0.86..897235.49 rows=9 width=67) (actual time=272.024..9606.444 rows=1941 loops=1)
+  Merge Cond: (oi.id = b.id)
+  ->  Nested Loop  (cost=0.57..5579874.38 rows=56 width=52) (actual time=272.008..9600.746 rows=1942 loops=1)
+        Join Filter: (o.id = oi.orderid)
+        Rows Removed by Join Filter: 29938545
+        ->  Index Scan using orderitem_pkey on orderitem oi  (cost=0.29..2135.18 rows=60126 width=16) (actual time=0.013..5.071 rows=10001 loops=1)
+        ->  Materialize  (cost=0.29..5565112.77 rows=14 width=52) (actual time=0.027..0.839 rows=2994 loops=10001)
+              ->  Nested Loop  (cost=0.29..5565112.70 rows=14 width=52) (actual time=271.989..7378.856 rows=2994 loops=1)
+                    ->  Seq Scan on "Order" o  (cost=0.00..336.00 rows=15000 width=24) (actual time=0.007..1.867 rows=15000 loops=1)
+                    ->  Memoize  (cost=0.29..1869.01 rows=5 width=44) (actual time=0.491..0.491 rows=0 loops=15000)
+                          Cache Key: o.customerid, o.orderdate
+                          Cache Mode: logical
+                          Hits: 103  Misses: 14897  Evictions: 0  Overflows: 0  Memory Usage: 1373kB
+                          ->  Append  (cost=0.28..1869.00 rows=5 width=44) (actual time=0.475..0.476 rows=0 loops=14897)
+                                ->  Index Scan using customer_eszak_pkey on customer_eszak c_1  (cost=0.28..373.82 rows=1 width=34) (actual time=0.120..0.120 rows=0 loops=14897)
+                                      Index Cond: (id = o.customerid)
+                                      Filter: (o.orderdate = (SubPlan 1))
+                                      Rows Removed by Filter: 0
+                                      SubPlan 1
+                                        ->  Aggregate  (cost=373.51..373.52 rows=1 width=8) (actual time=0.467..0.468 rows=1 loops=14897)
+                                              ->  Seq Scan on "Order"  (cost=0.00..373.50 rows=5 width=8) (actual time=0.075..0.465 rows=6 loops=14897)
+                                                    Filter: (customerid = c_1.id)
+                                                    Rows Removed by Filter: 14994
+                                ->  Index Scan using customer_del_pkey on customer_del c_2  (cost=0.28..373.82 rows=1 width=34) (actual time=0.116..0.116 rows=0 loops=14897)
+                                      Index Cond: (id = o.customerid)
+                                      Filter: (o.orderdate = (SubPlan 1))
+                                      Rows Removed by Filter: 0
+                                ->  Index Scan using customer_kelet_pkey on customer_kelet c_3  (cost=0.28..373.82 rows=1 width=34) (actual time=0.121..0.121 rows=0 loops=14897)
+                                      Index Cond: (id = o.customerid)
+                                      Filter: (o.orderdate = (SubPlan 1))
+                                      Rows Removed by Filter: 0
+                                ->  Index Scan using customer_nyugat_pkey on customer_nyugat c_4  (cost=0.28..373.82 rows=1 width=34) (actual time=0.116..0.116 rows=0 loops=14897)
+                                      Index Cond: (id = o.customerid)
+                                      Filter: (o.orderdate = (SubPlan 1))
+                                      Rows Removed by Filter: 0
+                                ->  Index Scan using customer_kozep_pkey on customer_kozep c_5  (cost=0.14..373.69 rows=1 width=344) (actual time=0.001..0.001 rows=0 loops=14897)
+                                      Index Cond: (id = o.customerid)
+                                      Filter: (o.orderdate = (SubPlan 1))
+  ->  Index Scan using book_pkey on book b  (cost=0.29..444.37 rows=10000 width=31) (actual time=0.008..4.237 rows=10000 loops=1)
+Planning Time: 0.393 ms
+JIT:
+  Functions: 68
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 1.731 ms (Deform 0.768 ms), Inlining 11.597 ms, Optimization 150.138 ms, Emission 109.738 ms, Total 273.205 ms
+Execution Time: 9608.526 ms

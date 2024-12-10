@@ -1,0 +1,1 @@
+select 'Szerző: ', author, 'Cím: ', title, 'Nyelv: ', "language", 'Ár: ', price, case when piece > 0 then 'Készleten' else 'Nincs készleten' end as elerheto from book b 

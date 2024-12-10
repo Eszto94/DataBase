@@ -1,0 +1,28 @@
+Merge Join  (cost=22.81..14232.00 rows=9 width=67) (actual time=11.944..2790.548 rows=1941 loops=1)
+  Merge Cond: (oi.id = b.id)
+  ->  Nested Loop  (cost=22.52..85515.82 rows=56 width=52) (actual time=11.929..2787.053 rows=1942 loops=1)
+        Join Filter: (o.id = oi.orderid)
+        Rows Removed by Join Filter: 29938482
+        ->  Index Scan using orderitem_pkey on orderitem oi  (cost=0.29..2135.18 rows=60126 width=16) (actual time=0.014..3.535 rows=10001 loops=1)
+        ->  Materialize  (cost=22.23..70754.22 rows=14 width=52) (actual time=0.000..0.105 rows=2994 loops=10001)
+              ->  Nested Loop  (cost=22.23..70754.15 rows=14 width=52) (actual time=0.095..56.818 rows=2994 loops=1)
+                    ->  Append  (cost=0.00..112.50 rows=3100 width=44) (actual time=0.013..0.815 rows=3000 loops=1)
+                          ->  Seq Scan on customer_eszak c_1  (cost=0.00..21.59 rows=759 width=34) (actual time=0.013..0.179 rows=759 loops=1)
+                          ->  Seq Scan on customer_del c_2  (cost=0.00..21.39 rows=739 width=34) (actual time=0.007..0.138 rows=739 loops=1)
+                          ->  Seq Scan on customer_kelet c_3  (cost=0.00..21.65 rows=765 width=34) (actual time=0.008..0.161 rows=765 loops=1)
+                          ->  Seq Scan on customer_nyugat c_4  (cost=0.00..21.37 rows=737 width=34) (actual time=0.007..0.120 rows=737 loops=1)
+                          ->  Seq Scan on customer_kozep c_5  (cost=0.00..11.00 rows=100 width=344) (actual time=0.005..0.005 rows=0 loops=1)
+                    ->  Index Scan using ix_order_orderdate on "Order" o  (cost=22.23..22.78 rows=1 width=24) (actual time=0.007..0.012 rows=1 loops=3000)
+                          Index Cond: (orderdate = (SubPlan 1))
+                          Filter: (c.id = customerid)
+                          Rows Removed by Filter: 40
+                          SubPlan 1
+                            ->  Aggregate  (cost=21.94..21.95 rows=1 width=8) (actual time=0.006..0.006 rows=1 loops=3000)
+                                  ->  Bitmap Heap Scan on "Order"  (cost=4.32..21.93 rows=5 width=8) (actual time=0.003..0.004 rows=5 loops=3000)
+                                        Recheck Cond: (customerid = c.id)
+                                        Heap Blocks: exact=14796
+                                        ->  Bitmap Index Scan on ix_order_customerid  (cost=0.00..4.32 rows=5 width=0) (actual time=0.001..0.001 rows=5 loops=3000)
+                                              Index Cond: (customerid = c.id)
+  ->  Index Scan using book_pkey on book b  (cost=0.29..444.37 rows=10000 width=31) (actual time=0.012..1.911 rows=10000 loops=1)
+Planning Time: 0.785 ms
+Execution Time: 2790.779 ms
